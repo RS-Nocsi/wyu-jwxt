@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wyu-jwxt"
-version = "0.1.1"
+version = "0.1.2"
 description = "五邑大学乘方教务系统 Python SDK（参考实现，理论兼容其他乘方学校）"
 readme = "README.md"
 requires-python = ">=3.6"
@@ -14,8 +14,8 @@ dependencies = [
     "requests>=2.20",
     "pycryptodome>=3.18",
     "beautifulsoup4>=4.11",
-    "ddddocr>=1.4",
-    "Pillow>=9.0",
+    "ddddocr>=1.4; python_version >= '3.7'",
+    "Pillow>=9.0; python_version >= '3.7'",
     "dataclasses; python_version < '3.7'",
 ]
 
