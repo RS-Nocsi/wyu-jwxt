@@ -163,7 +163,7 @@ class Client:
             pass
 
     @classmethod
-    def from_session(cls, path: str, *, config: Optional[SchoolConfig] = None) -> "Client":
+    def from_session(cls, path: str, *, config: Optional[SchoolConfig] = None, verify: bool = True) -> "Client":
         """从磁盘加载 cookie 复用登录态。"""
         try:
             data = json.loads(Path(path).read_text(encoding="utf-8"))
@@ -176,7 +176,7 @@ class Client:
                 f"config.base_url ({config.base_url}) 与会话文件的 base_url "
                 f"({saved_base_url}) 不一致，cookie 可能无效"
             )
-        client = cls(config=config or SchoolConfig(base_url=saved_base_url))
+        client = cls(config=config or SchoolConfig(base_url=saved_base_url), verify=verify)
         for c in data.get("cookies", []):
             client._session.cookies.set(
                 c["name"], c["value"],
