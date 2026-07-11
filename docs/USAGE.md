@@ -19,15 +19,17 @@
 ## 1. 安装
 
 ```bash
-# PyPI 安装（推荐）
-pip install wyu-jwxt               # 基础安装
-pip install wyu-jwxt[ocr]         # 含验证码自动识别（推荐）
+pip install wyu-jwxt
+```
 
-# 或从源码安装
+一个命令装好所有依赖（含验证码自动识别）。
+
+如需从源码安装：
+
+```bash
 git clone https://github.com/RS-Nocsi/wyu-jwxt.git
 cd wyu-jwxt
 pip install -e .
-pip install -e ".[ocr]"
 ```
 
 `[ocr]` 扩展会安装 `ddddocr` 和 `Pillow`，用于自动识别教务系统的图形验证码。

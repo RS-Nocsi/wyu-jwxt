@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wyu-jwxt"
-version = "0.1.0"
+version = "0.1.1"
 description = "五邑大学乘方教务系统 Python SDK（参考实现，理论兼容其他乘方学校）"
 readme = "README.md"
 requires-python = ">=3.6"
@@ -14,13 +14,14 @@ dependencies = [
     "requests>=2.20",
     "pycryptodome>=3.18",
     "beautifulsoup4>=4.11",
+    "ddddocr>=1.4",
+    "Pillow>=9.0",
     "dataclasses; python_version < '3.7'",
 ]
 
 [project.optional-dependencies]
-ocr = ["ddddocr>=1.4", "Pillow>=9.0"]
 dev = ["pytest>=7.0", "pytest-cov"]
-all = ["wyu-jwxt[ocr,dev]"]
+all = ["wyu-jwxt[dev]"]
 
 [project.urls]
 Homepage = "https://github.com/RS-Nocsi/wyu-jwxt"

@@ -30,7 +30,7 @@ docs/
 - Python >= 3.6
 - 虚拟环境：`.venv`（Python 3.11）
 - Shell：Git Bash
-- `pip install wyu-jwxt[ocr,dev]` 即可装好所有依赖（已发布 PyPI）
+- `pip install wyu-jwxt[dev]` 即可装好所有依赖（含测试工具）
 - pytest 测试：`pytest tests/`（集成测试需 `WYU_USER` / `WYU_PASS` 环境变量）
 - Git 仓库已推送到 `github.com/RS-Nocsi/wyu-jwxt`，分支 `main`
 
