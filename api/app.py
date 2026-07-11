@@ -83,7 +83,7 @@ def _get_or_login(student_id: str, username: str = None, password: str = None) -
         return client
 
 
-def _client_from_session(student_id: str) -> Client | None:
+def _client_from_session(student_id: str) -> Client:
     """从 session 文件加载 Client。若文件不存在或损坏返回 None。"""
     session_file = SESSIONS_DIR / f"{student_id}.json"
     if not session_file.exists():

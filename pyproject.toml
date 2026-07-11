@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,13 +7,14 @@ name = "wyu-jwxt"
 version = "0.1.0"
 description = "五邑大学乘方教务系统 Python SDK（参考实现，理论兼容其他乘方学校）"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.6"
 license = {text = "MIT"}
 authors = [{name = "RS-Nocsi"}]
 dependencies = [
-    "requests>=2.28",
+    "requests>=2.20",
     "pycryptodome>=3.18",
     "beautifulsoup4>=4.11",
+    "dataclasses; python_version < '3.7'",
 ]
 
 [project.optional-dependencies]
