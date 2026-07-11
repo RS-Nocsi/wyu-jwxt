@@ -3,8 +3,27 @@
 from typing import List, Optional
 
 from .models import Course
+from .exceptions import ChengfangError
 
 __all__ = ["get_schedule"]
+
+
+def _build_date_range(xn: int, xq: int) -> "tuple[str, str]":
+    """根据学年学期计算课表查询的日期范围。
+
+    第1学期（秋季）始于 xn 年 8 月，第2学期（春季）始于 xn+1 年 2 月。
+    取开学第4周的 7 天范围，可覆盖大部分学期边界。
+    """
+    if xq == 1:
+        year = xn
+        month = 8
+    else:
+        year = xn + 1
+        month = 2
+    return (
+        f"{year}-{month:02d}-22 00:00:00",
+        f"{year}-{month:02d}-28 23:59:59",
+    )
 
 
 def get_schedule(self, xn: int, xq: int, week: Optional[int] = None) -> List[Course]:
@@ -19,24 +38,27 @@ def get_schedule(self, xn: int, xq: int, week: Optional[int] = None) -> List[Cou
         Course 列表
     """
     xnxqdm = self.config.term_code(xn, xq)
-    # 建立课表页上下文
     self._get(self.config.schedule_page_path, params={"xnxqdm": xnxqdm})
-    # 根据学期计算日期范围（第1学期8月，第2学期2月）
-    year = xn + 1 if xq == 1 else xn  # 第1学期跨年到 xn+1
-    month = "08" if xq == 1 else "02"
+
+    week_str = str(week) if week is not None else ""
+    d1, d2 = _build_date_range(xn, xq)
     data = {
         "xnxqdm": xnxqdm,
-        "zc": str(week) if week else "",
-        "d1": f"{year}-{month}-23 00:00:00",
-        "d2": f"{year}-{month}-28 23:59:59",
+        "zc": week_str,
+        "d1": d1,
+        "d2": d2,
     }
     result = self._post(
         self.config.schedule_data_path, data,
         referer=self.config.base_url + self.config.schedule_page_path,
     )
     if "code" in result and result["code"] < 0:
-        from .exceptions import ChengfangError
         raise ChengfangError(result.get("message", "课表查询失败"))
-    rows = result.get("data", []) or []
-    courses = [Course.from_raw(r) for r in rows]
+    courses = []
+    for r in result.get("data") or []:
+        if isinstance(r, dict):
+            try:
+                courses.append(Course.from_raw(r))
+            except Exception:
+                continue
     return courses

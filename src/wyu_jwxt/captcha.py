@@ -51,11 +51,9 @@ class OcrSolver(CaptchaSolver):
             self._engine = ddddocr.DdddOcr(show_ad=False)
         return self._engine
 
-    @property
-    def engine(self):
-        return self._get_engine()
-
     def solve(self, image_bytes: bytes) -> str:
         engine = self._get_engine()
         raw = engine.classification(image_bytes)
+        if raw is None:
+            raise CaptchaError("验证码识别返回空结果")
         return "".join(c for c in raw if c.isalnum())

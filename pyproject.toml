@@ -19,6 +19,7 @@ dependencies = [
 [project.optional-dependencies]
 ocr = ["ddddocr>=1.4", "Pillow>=9.0"]
 dev = ["pytest>=7.0", "pytest-cov"]
+all = ["wyu-jwxt[ocr,dev]"]
 
 [project.urls]
 Homepage = "https://github.com/RS-Nocsi/wyu-jwxt"

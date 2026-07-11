@@ -16,3 +16,7 @@ class CaptchaError(ChengfangError):
 
 class SessionExpiredError(ChengfangError):
     """登录态过期，需重新登录。"""
+
+
+class RequestError(ChengfangError):
+    """网络请求失败（超时、连接错误等）。"""

@@ -1,6 +1,8 @@
 # src/wyu_jwxt/client.py
 """Client — SDK 主入口，管理 session、登录、通用请求封装。"""
 import json
+import os
+import stat
 import time
 import logging
 from pathlib import Path
@@ -10,7 +12,9 @@ import requests
 
 from .config import SchoolConfig
 from .captcha import CaptchaSolver, OcrSolver
-from .exceptions import LoginError, SessionExpiredError, ChengfangError
+from .exceptions import (
+    LoginError, SessionExpiredError, ChengfangError, RequestError,
+)
 
 __all__ = ["Client"]
 
@@ -21,10 +25,6 @@ _DEFAULT_UA = (
 _DEFAULT_TIMEOUT = 30
 
 logger = logging.getLogger(__name__)
-
-# Suppress InsecureRequestWarning for self-signed school-cert servers
-import warnings as _warnings
-_warnings.filterwarnings("ignore", message="Unverified HTTPS request")
 
 
 class Client:
@@ -39,7 +39,7 @@ class Client:
         manual_solver: Optional[CaptchaSolver] = None,
         max_login_retries: int = 5,
         timeout: float = _DEFAULT_TIMEOUT,
-        verify: bool = False,
+        verify: bool = True,
     ):
         self.config = config or (SchoolConfig(base_url=base_url) if base_url else SchoolConfig())
         self._captcha_solver = captcha_solver
@@ -110,7 +110,7 @@ class Client:
                         f"验证码识别连续 {captcha_len_failures} 次返回错误长度 "
                         f"({len(verifycode)} 位)，请检查验证码图片或手动输入"
                     )
-                continue  # OCR 位数不对，重取
+                continue
             captcha_len_failures = 0
 
             pwd_enc = encryptor(password, verifycode)
@@ -130,21 +130,37 @@ class Client:
                 return
             if code == -302:
                 raise LoginError("触发双因素认证，当前 SDK 暂不支持扫码")
-            # 其他失败，重试
+            # 密码错误等不可恢复错误，不重试
+            if code is not None and code < 0:
+                raise LoginError(
+                    f"登录失败: {result.get('message', '未知错误')} (code={code})"
+                )
 
         raise LoginError(f"登录失败，已重试 {self._max_retries} 次")
 
     # ---------- session 持久化 ----------
     def save_session(self, path: str) -> None:
         """保存当前 cookie 到磁盘。"""
-        cookies = [c.__getstate__() if hasattr(c, "__getstate__") else
-                   {"name": c.name, "value": c.value, "domain": c.domain,
-                    "path": c.path} for c in self._session.cookies]
+        cookies = []
+        for c in self._session.cookies:
+            cookie_dict = {
+                "name": c.name, "value": c.value,
+                "domain": c.domain, "path": c.path,
+            }
+            if c.expires:
+                cookie_dict["expires"] = c.expires
+            if c.secure:
+                cookie_dict["secure"] = True
+            cookies.append(cookie_dict)
         Path(path).write_text(
             json.dumps({"cookies": cookies, "logged_in": self._logged_in,
                         "base_url": self.config.base_url}, ensure_ascii=False),
             encoding="utf-8",
         )
+        try:
+            os.chmod(path, stat.S_IRUSR | stat.S_IWUSR)
+        except OSError:
+            pass
 
     @classmethod
     def from_session(cls, path: str, *, config: Optional[SchoolConfig] = None) -> "Client":
@@ -154,9 +170,18 @@ class Client:
         except (FileNotFoundError, json.JSONDecodeError):
             raise ChengfangError(f"会话文件不存在或损坏: {path}")
         saved_base_url = data.get("base_url") or "https://jxgl.wyu.edu.cn"
+        if config is not None and config.base_url != saved_base_url:
+            import warnings
+            warnings.warn(
+                f"config.base_url ({config.base_url}) 与会话文件的 base_url "
+                f"({saved_base_url}) 不一致，cookie 可能无效"
+            )
         client = cls(config=config or SchoolConfig(base_url=saved_base_url))
         for c in data.get("cookies", []):
-            client._session.cookies.set(c["name"], c["value"], domain=c.get("domain"), path=c.get("path"))
+            client._session.cookies.set(
+                c["name"], c["value"],
+                domain=c.get("domain"), path=c.get("path"),
+            )
         client._logged_in = data.get("logged_in", False)
         return client
 
@@ -165,17 +190,21 @@ class Client:
         if not self._logged_in:
             raise SessionExpiredError("未登录，请先调用 login()")
 
-    def _post(self, path: str, data: dict, *, json_response: bool = True, referer: Optional[str] = None):
+    def _post(self, path: str, data: dict, *, json_response: bool = True,
+              referer: Optional[str] = None):
         self._ensure_logged_in()
         headers = {}
         if referer:
             headers["Referer"] = referer
             headers["X-Requested-With"] = "XMLHttpRequest"
-        resp = self._session.post(
-            self.config.base_url + path, data=data, headers=headers,
-            timeout=self._timeout,
-        )
-        resp.raise_for_status()
+        try:
+            resp = self._session.post(
+                self.config.base_url + path, data=data, headers=headers,
+                timeout=self._timeout,
+            )
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            raise RequestError(f"POST {path} 请求失败: {e}") from e
         if json_response:
             try:
                 return resp.json()
@@ -183,14 +212,18 @@ class Client:
                 raise ChengfangError(f"服务器返回非 JSON 响应: {resp.text[:200]}")
         return resp.text
 
-    def _get(self, path: str, params: Optional[dict] = None, *, referer: Optional[str] = None):
+    def _get(self, path: str, params: Optional[dict] = None, *,
+             referer: Optional[str] = None):
         self._ensure_logged_in()
         headers = {}
         if referer:
             headers["Referer"] = referer
-        resp = self._session.get(
-            self.config.base_url + path, params=params, headers=headers,
-            timeout=self._timeout,
-        )
-        resp.raise_for_status()
+        try:
+            resp = self._session.get(
+                self.config.base_url + path, params=params, headers=headers,
+                timeout=self._timeout,
+            )
+            resp.raise_for_status()
+        except requests.RequestException as e:
+            raise RequestError(f"GET {path} 请求失败: {e}") from e
         return resp.text

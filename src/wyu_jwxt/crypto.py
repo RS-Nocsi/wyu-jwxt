@@ -19,6 +19,8 @@ def encrypt_password(password: str, verifycode: str) -> str:
     Returns:
         hex 编码的密文字符串
     """
+    if len(verifycode) != 4:
+        raise ValueError(f"验证码必须为 4 字符，得到 {len(verifycode)} 位")
     key = (verifycode * 4).encode("utf-8")  # 16 字节
     cipher = AES.new(key, AES.MODE_ECB)
     encrypted = cipher.encrypt(pad(password.encode("utf-8"), AES.block_size))

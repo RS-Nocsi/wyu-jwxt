@@ -1,9 +1,41 @@
 # src/wyu_jwxt/models.py
 """数据模型 — 把教务系统原始 JSON/HTML 字段映射成易用对象。"""
-from dataclasses import dataclass
-from typing import List
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
 
 __all__ = ["Course", "Grade", "Exam", "StudentInfo"]
+
+
+def _safe_int(v: Any, default: int = 0) -> int:
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return default
+
+
+def _split_ints(s: Any) -> List[int]:
+    """将逗号分隔的周次字符串/列表解析为整数列表。"""
+    if not s:
+        return []
+    if isinstance(s, list):
+        result = []
+        for item in s:
+            try:
+                result.append(int(item))
+            except (TypeError, ValueError):
+                continue
+        return result
+    if isinstance(s, str):
+        return [int(x) for x in s.split(",") if x.strip().isdigit()]
+    return []
+
+
+def _to_float(s: Any) -> Optional[float]:
+    """安全转换为 float；失败返回 None 以区分「缺失」和「0.0」。"""
+    try:
+        return float(s)
+    except (TypeError, ValueError):
+        return None
 
 
 @dataclass
@@ -14,29 +46,21 @@ class Course:
     classroom: str
     start_time: str
     end_time: str
-    weekday: int
-    weeks: List[int]
-    term_code: str
-    course_code: str
+    weekday: Optional[int]
+    weeks: List[int] = field(default_factory=list)
+    term_code: str = ""
+    course_code: str = ""
 
     @classmethod
     def from_raw(cls, raw: dict) -> "Course":
-        def _split_ints(s: str) -> List[int]:
-            return [int(x) for x in str(s).split(",") if x.strip().isdigit()] if s else []
-
-        def _safe_int(v, default=0) -> int:
-            try:
-                return int(v)
-            except (TypeError, ValueError):
-                return default
-
+        weekday = _safe_int(raw.get("jsxq")) if raw.get("jsxq") is not None else None
         return cls(
             name=raw.get("kcmc", ""),
             teacher=raw.get("teaxms", ""),
             classroom=raw.get("jxcdmc", ""),
             start_time=raw.get("qssj", ""),
             end_time=raw.get("jssj", ""),
-            weekday=_safe_int(raw.get("jsxq") or 0),
+            weekday=weekday,
             weeks=_split_ints(raw.get("zc", "")),
             term_code=raw.get("xnxqdm", ""),
             course_code=raw.get("kcbh", ""),
@@ -48,7 +72,7 @@ class Grade:
     """一门课程的成绩。"""
     course_name: str
     score: str
-    credit: float
+    credit: Optional[float]
     term: str
     department: str
     nature: str
@@ -57,11 +81,6 @@ class Grade:
 
     @classmethod
     def from_raw(cls, raw: dict) -> "Grade":
-        def _to_float(s) -> float:
-            try:
-                return float(s)
-            except (TypeError, ValueError):
-                return 0.0
         return cls(
             course_name=raw.get("kcmc", ""),
             score=raw.get("zcj", ""),

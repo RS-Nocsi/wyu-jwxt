@@ -2,8 +2,6 @@
 """学籍卡片查询。"""
 import re
 
-from bs4 import BeautifulSoup
-
 from .models import StudentInfo
 from .exceptions import ChengfangError
 
@@ -14,7 +12,7 @@ def get_student_info(self) -> StudentInfo:
     """获取学籍卡片信息。
 
     学号/姓名从 welcome 页面的 data-userbh/data-userxm 属性获取，
-    其他字段从 edit.page 表单的 input name/value 获取。
+    其他字段从 edit.page 表单的 input/select/textarea name/value 获取。
     """
     # 1. 从 welcome 页面获取学号和姓名
     welcome_html = self._get(self.config.welcome_path)
@@ -30,11 +28,17 @@ def get_student_info(self) -> StudentInfo:
 
     # 2. 从 edit.page 表单获取其他字段
     html = self._get(self.config.student_info_path)
+    from bs4 import BeautifulSoup
     soup = BeautifulSoup(html, "html.parser")
     fields = {}
-    for inp in soup.find_all("input"):
-        name = inp.get("name")
+    for tag in soup.find_all(["input", "select", "textarea"]):
+        name = tag.get("name")
         if name:
-            fields[name] = inp.get("value", "")
+            value = tag.get("value", "")
+            if value == "" and tag.name == "select":
+                selected = tag.find("option", selected=True)
+                if selected:
+                    value = selected.get("value", "")
+            fields[name] = value
 
     return StudentInfo.from_welcome_and_form(user_id, user_name, fields)

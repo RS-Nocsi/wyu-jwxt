@@ -1,10 +1,17 @@
 # src/wyu_jwxt/config.py
 """学校配置 — 接口路径与 base_url 集中管理，支持其他乘方学校 override。"""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Callable
 
 from .crypto import encrypt_password
+from .exceptions import ChengfangError
+
+__all__ = ["SchoolConfig"]
+
+
+class SchoolConfigError(ChengfangError):
+    """配置相关错误。"""
 
 
 @dataclass
@@ -27,6 +34,9 @@ class SchoolConfig:
     student_info_path: str = "/new/student/xjkpxx/edit.page"
     welcome_path: str = "/new/welcome.page"
 
+    def __post_init__(self):
+        self.base_url = self.base_url.rstrip("/")
+
     @property
     def password_encryptor(self) -> Callable[[str, str], str]:
         """密码加密函数：(password, verifycode) -> hex 密文。子类可 override 换算法。"""
@@ -34,10 +44,12 @@ class SchoolConfig:
 
     def term_code(self, xn: int, xq: int) -> str:
         """学年学期代码。五邑格式：2025年第2学期 → '202502'。子类可 override。"""
-        if not isinstance(xn, int) or not isinstance(xq, int):
-            raise TypeError(f"xn 和 xq 必须为 int，得到 xn={type(xn).__name__}, xq={type(xq).__name__}")
+        if type(xn) is not int or type(xq) is not int:
+            raise SchoolConfigError(
+                f"xn 和 xq 必须为 int，得到 xn={type(xn).__name__}, xq={type(xq).__name__}"
+            )
         if xn < 2000:
-            raise ValueError(f"xn 年份不合理: {xn}")
+            raise SchoolConfigError(f"xn 年份不合理: {xn}")
         if xq not in (1, 2):
-            raise ValueError(f"xq 必须为 1 或 2，得到 {xq}")
+            raise SchoolConfigError(f"xq 必须为 1 或 2，得到 {xq}")
         return f"{xn}{xq:02d}"

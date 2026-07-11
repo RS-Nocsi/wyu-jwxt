@@ -24,7 +24,6 @@ tests/
 # 打包
 build/
 dist/
-*.egg-info/
 
 # 测试
 .pytest_cache/
@@ -41,3 +40,15 @@ htmlcov/
 # 临时文件
 test_cache.json
 *.tmp
+
+# 凭据与敏感文件
+.env
+*.log
+credentials.*
+secrets.*
+*.pem
+*.key
+
+# 系统文件
+Thumbs.db
+.DS_Store
