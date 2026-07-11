@@ -19,13 +19,14 @@
 ## 1. 安装
 
 ```bash
+# PyPI 安装（推荐）
+pip install wyu-jwxt               # 基础安装
+pip install wyu-jwxt[ocr]         # 含验证码自动识别（推荐）
+
+# 或从源码安装
 git clone https://github.com/RS-Nocsi/wyu-jwxt.git
 cd wyu-jwxt
-
-# 基础安装
 pip install -e .
-
-# 含验证码自动识别（推荐）
 pip install -e ".[ocr]"
 ```
 

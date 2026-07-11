@@ -17,6 +17,9 @@ src/wyu_jwxt/
   exams.py         # 考试查询 -> List[Exam]
   student_info.py  # 学籍查询 -> StudentInfo
   exceptions.py    # ChengfangError / LoginError / CaptchaError / SessionExpiredError
+api/
+  app.py           # Flask API 站点：5 个 REST 端点封装 SDK
+  requirements.txt # API 站点依赖
 docs/
   USAGE.md         # 详细用法教程（11 节）
   API.md           # 完整 API 参考（含教务原始字段映射表）
@@ -24,10 +27,10 @@ docs/
 
 ## 环境
 
-- Python >= 3.8
+- Python >= 3.6
 - 虚拟环境：`.venv`（Python 3.11）
 - Shell：Git Bash
-- `pip install -e ".[ocr,dev]"` 即可装好所有依赖
+- `pip install wyu-jwxt[ocr,dev]` 即可装好所有依赖（已发布 PyPI）
 - pytest 测试：`pytest tests/`（集成测试需 `WYU_USER` / `WYU_PASS` 环境变量）
 - Git 仓库已推送到 `github.com/RS-Nocsi/wyu-jwxt`，分支 `main`
 
