@@ -1,6 +1,6 @@
 # wyu-jwxt
 
-[![Python](https://img.shields.io/badge/python-3.6%2B-blue)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.8%2B-blue)](https://www.python.org/)
 [![PyPI](https://img.shields.io/pypi/v/wyu-jwxt)](https://pypi.org/project/wyu-jwxt/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 

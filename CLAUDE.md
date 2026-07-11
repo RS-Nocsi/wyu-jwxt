@@ -27,7 +27,7 @@ docs/
 
 ## 环境
 
-- Python >= 3.6
+- Python >= 3.8
 - 虚拟环境：`.venv`（Python 3.11）
 - Shell：Git Bash
 - `pip install wyu-jwxt[dev]` 即可装好所有依赖（含测试工具）
