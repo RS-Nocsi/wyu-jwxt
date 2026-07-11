@@ -16,7 +16,7 @@
 pip install wyu-jwxt
 ```
 
-> Python >= 3.6。支持 Windows / Linux / macOS。一个命令装好所有依赖（含验证码自动识别）。
+> Python >= 3.8。支持 Windows / Linux / macOS。一个命令装好所有依赖（含验证码自动识别）。
 
 ## 快速开始
 
