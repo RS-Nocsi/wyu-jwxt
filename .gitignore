@@ -54,4 +54,4 @@ Thumbs.db
 .DS_Store
 
 # Flask API session 文件（含教务 cookie，不可提交）
-wyu_sessions/
+api/wyu_sessions/
