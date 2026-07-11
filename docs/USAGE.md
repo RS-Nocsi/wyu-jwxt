@@ -32,7 +32,7 @@ cd wyu-jwxt
 pip install -e .
 ```
 
-`[ocr]` 扩展会安装 `ddddocr` 和 `Pillow`，用于自动识别教务系统的图形验证码。
+`ddddocr` 和 `Pillow` 已包含在核心依赖中，安装后即可自动识别教务系统的图形验证码。
 
 ---
 

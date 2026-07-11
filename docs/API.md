@@ -157,7 +157,7 @@ class CaptchaSolver(ABC):
 OcrSolver()   # 使用 ddddocr 自动识别
 ```
 
-**依赖：** `pip install -e ".[ocr]"` 或 `pip install ddddocr`
+**依赖：** `pip install wyu-jwxt`（`ddddocr` 已内置）
 
 ### `ManualSolver`
 

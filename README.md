@@ -67,7 +67,7 @@ info = client.get_student_info()                    # 学籍
 |------|------|---------|------|
 | `course_name` | `str` | `kcmc` | 高等数学 |
 | `score` | `str` | `zcj` | 88 |
-| `credit` | `float` | `xf` | 5.0 |
+| `credit` | `float` | `xf` | 5.0，缺失时为 None |
 | `term` | `str` | `xnxqmc` | 2025-2026-2 |
 | `department` | `str` | `kkbmmc` | XX学院 |
 | `nature` | `str` | `xdfsmc` | 必修 |
@@ -144,6 +144,7 @@ client = Client(config=MySchool())
 | `LoginError` | 登录失败（密码错/验证码错/双因素触发） |
 | `CaptchaError` | 验证码获取或识别失败 |
 | `SessionExpiredError` | 未登录时调用数据接口 |
+| `RequestError` | 教务服务器不可达或超时 |
 | `ChengfangError` | 基类，可统一捕获所有 SDK 异常 |
 
 ## 许可

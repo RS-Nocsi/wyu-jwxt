@@ -45,7 +45,7 @@ class OcrSolver(CaptchaSolver):
                 import ddddocr
             except ImportError as e:
                 raise CaptchaError(
-                    "未安装 ddddocr，请 pip install wyu-jwxt[ocr] "
+                    "未安装 ddddocr，请 pip install wyu-jwxt "
                     "或传入 manual_solver 手动处理验证码"
                 ) from e
             self._engine = ddddocr.DdddOcr(show_ad=False)
