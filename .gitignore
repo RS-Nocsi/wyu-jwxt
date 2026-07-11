@@ -41,3 +41,4 @@ htmlcov/
 # 临时文件
 test_cache.json
 *.tmp
+run_*.py
