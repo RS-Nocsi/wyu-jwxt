@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wyu-jwxt"
+version = "0.1.0"
+description = "五邑大学乘方教务系统 Python SDK（参考实现，理论兼容其他乘方学校）"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [{name = "RS-Nocsi"}]
+dependencies = [
+    "requests>=2.28",
+    "pycryptodome>=3.18",
+    "beautifulsoup4>=4.11",
+]
+
+[project.optional-dependencies]
+ocr = ["ddddocr>=1.4", "Pillow>=9.0"]
+dev = ["pytest>=7.0", "pytest-cov"]
+
+[project.urls]
+Homepage = "https://github.com/RS-Nocsi/wyu-jwxt"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

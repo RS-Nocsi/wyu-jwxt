@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+eggs/
+*.whl
+pip-log.txt
+pip-delete-this-directory.txt
+
+# 虚拟环境
+.venv/
+venv/
+ENV/
+
+# 测试目录
+tests/
+
+# 工具产物
+.superpowers/
+
+# 打包
+build/
+dist/
+*.egg-info/
+
+# 测试
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# 临时文件
+test_cache.json
+*.tmp
